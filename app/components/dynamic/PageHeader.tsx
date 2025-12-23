@@ -1,5 +1,6 @@
 import React from "react";
 import { Search, Filter, Plus } from "lucide-react";
+import { ButtonCreateComponents } from "../btn/ButtonCreate";
 
 interface PageHeaderProps {
   title: string;
@@ -21,7 +22,7 @@ export const PageHeader = ({
   showFilter = true,
 }: PageHeaderProps) => {
   return (
-    <div className="px-6 py-4  flex items-center justify-between  rounded-t-xl">
+    <div className="pb-4  flex items-center justify-between  rounded-t-xl">
       <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
 
       <div className="flex items-center gap-3">
@@ -48,14 +49,7 @@ export const PageHeader = ({
           </button>
         )}
 
-        {/* Primary Action Button */}
-        <button
-          onClick={onAddClick}
-          className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          {addButtonLabel}
-        </button>
+        <ButtonCreateComponents label={addButtonLabel} onClick={onAddClick} />
       </div>
     </div>
   );

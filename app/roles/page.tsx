@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
+
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Search,
   Filter,
@@ -10,119 +10,73 @@ import {
   X,
   Check,
   Users,
+  Loader2,
+  MoreVertical,
 } from "lucide-react";
+import {
+  Table,
+  Flex,
+  Text,
+  Avatar,
+  Badge,
+  Button,
+  Box,
+  DropdownMenu,
+} from "@radix-ui/themes";
+import { PageHeader } from "../components/dynamic/PageHeader";
+import { useRouter } from "next/navigation";
 
 const RolesPage = () => {
+  // --- States ---
   const [isAddRoleOpen, setIsAddRoleOpen] = useState(false);
   const [isEditRoleOpen, setIsEditRoleOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const roles = [
-    {
-      id: 1,
-      name: "Admin",
-      description: "Full system access with all permissions",
-      userCount: 2,
-      permissions: [
-        "Create",
-        "Read",
-        "Update",
-        "Delete",
-        "Manage Users",
-        "Manage Roles",
-      ],
-      color: "bg-red-100 text-red-800",
-      borderColor: "border-red-200",
-    },
-    {
-      id: 2,
-      name: "Project Manager",
-      description: "Can manage projects and teams",
-      userCount: 5,
-      permissions: [
-        "Create",
-        "Read",
-        "Update",
-        "Manage Projects",
-        "Assign Tasks",
-      ],
-      color: "bg-purple-100 text-purple-800",
-      borderColor: "border-purple-200",
-    },
-    {
-      id: 3,
-      name: "Developer",
-      description: "Can work on assigned tasks and projects",
-      userCount: 12,
-      permissions: ["Read", "Update", "Comment", "Upload Files"],
-      color: "bg-blue-100 text-blue-800",
-      borderColor: "border-blue-200",
-    },
-    {
-      id: 4,
-      name: "Designer",
-      description: "Can create and manage design assets",
-      userCount: 4,
-      permissions: ["Read", "Update", "Upload Files", "Comment"],
-      color: "bg-pink-100 text-pink-800",
-      borderColor: "border-pink-200",
-    },
-    {
-      id: 5,
-      name: "Viewer",
-      description: "Read-only access to projects",
-      userCount: 8,
-      permissions: ["Read", "Comment"],
-      color: "bg-gray-100 text-gray-800",
-      borderColor: "border-gray-200",
-    },
-  ];
+  // Search States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rolesData, setRolesData] = useState(initialRoles); // Displays data
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const availablePermissions = [
-    "Create",
-    "Read",
-    "Update",
-    "Delete",
-    "Manage Users",
-    "Manage Roles",
-    "Manage Projects",
-    "Assign Tasks",
-    "Upload Files",
-    "Comment",
-    "Export Data",
-    "View Reports",
-  ];
+  // --- API Search Logic ---
+  const handleSearchApi = useCallback(async (query: string) => {
+    setIsLoading(true);
+    try {
+      // Replace this with your actual fetch call:
+      // const res = await fetch(`/api/roles?search=${query}`);
+      // const data = await res.json();
+      // setRolesData(data);
 
-  const handleAddRole = () => {
-    console.log("Add role", selectedPermissions);
-    setIsAddRoleOpen(false);
-    setSelectedPermissions([]);
-  };
+      console.log("Searching API for:", query);
 
-  const handleEditRole = (role) => {
-    setSelectedRole(role);
-    setSelectedPermissions(role.permissions);
-    setIsEditRoleOpen(true);
-  };
+      // Simulate API Filter
+      const filtered = initialRoles.filter((role) =>
+        role.name.toLowerCase().includes(query.toLowerCase())
+      );
 
-  const handleUpdateRole = () => {
-    console.log("Update role", selectedRole, selectedPermissions);
-    setIsEditRoleOpen(false);
-    setSelectedPermissions([]);
-  };
-
-  const handleDeleteRole = (roleId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this role? Users with this role will need to be reassigned."
-      )
-    ) {
-      console.log("Delete role", roleId);
+      // Simulate Network Delay
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      setRolesData(filtered);
+    } catch (error) {
+      console.error("Search failed", error);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  const togglePermission = (permission) => {
+  // Debounce Effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSearchApi(searchQuery);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, handleSearchApi]);
+
+  // --- Handlers ---
+  const togglePermission = (permission: string) => {
     setSelectedPermissions((prev) =>
       prev.includes(permission)
         ? prev.filter((p) => p !== permission)
@@ -130,308 +84,155 @@ const RolesPage = () => {
     );
   };
 
+  const handleEditRole = (role: any) => {
+    setSelectedRole(role);
+    setSelectedPermissions(role.permissions);
+    setIsEditRoleOpen(true);
+  };
+
   return (
-    <div className="p-6">
-      {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Roles & Permissions
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Define roles and their access levels
-            </p>
-          </div>
-          <button
-            onClick={() => setIsAddRoleOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
-          >
-            <Plus size={16} />
-            Add Role
-          </button>
-        </div>
-      </div>
+    <div className="p-3">
+      <PageHeader
+        title="Roles"
+        searchPlaceholder="Search roles..."
+        searchValue={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setCurrentPage(1);
+        }}
+        onAddClick={() => router.push("/roles/form")}
+        addButtonLabel="Add Role"
+      />
 
-      {/* Filters and Search */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1 max-w-md">
-            <input
-              type="text"
-              placeholder="Search roles..."
-              className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-            <Search
-              className="absolute right-3 top-2.5 text-gray-400"
-              size={16}
-            />
-          </div>
-          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50">
-            <Filter size={16} />
-            Filter
-          </button>
-        </div>
-      </div>
+      {/* Roles Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <Table.Root variant="ghost">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeaderCell>Role Name</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Permissions</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Users</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="right">
+                Actions
+              </Table.ColumnHeaderCell>
+            </Table.Row>
+          </Table.Header>
 
-      {/* Roles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roles.map((role) => (
-          <div
-            key={role.id}
-            className={`bg-white border-2 ${role.borderColor} rounded-lg p-6 hover:shadow-lg transition-all`}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {role.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${role.color}`}
-                  >
-                    <Users size={12} />
-                    {role.userCount} users
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => handleEditRole(role)}
-                  className="p-1.5 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <Edit2 size={16} className="text-gray-600" />
-                </button>
-                <button
-                  onClick={() => handleDeleteRole(role.id)}
-                  className="p-1.5 hover:bg-red-50 rounded transition-colors"
-                >
-                  <Trash2 size={16} className="text-red-600" />
-                </button>
-              </div>
-            </div>
+          <Table.Body>
+            {rolesData.length > 0 ? (
+              rolesData.map((role) => (
+                <Table.Row key={role.id} align="center">
+                  <Table.RowHeaderCell>
+                    <Flex direction="column">
+                      <Text weight="bold" size="1">
+                        {role.name}
+                      </Text>
+                      {/* <Text size="1" color="gray">
+                        {role.description}
+                      </Text> */}
+                    </Flex>
+                  </Table.RowHeaderCell>
+                  <Table.Cell py="1">
+                    <Flex gap="1" wrap="wrap">
+                      {role.permissions.length > 3 && (
+                        <Badge variant="outline" color="gray" size="1">
+                          +{role.permissions.length - 3}
+                        </Badge>
+                      )}
+                    </Flex>
+                  </Table.Cell>
+                  <Table.Cell py="1">
+                    <Badge variant="surface" color="blue" radius="full">
+                      <Users size={12} className="mr-1" /> {role.userCount}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell py="1" align="right">
+                    <DropdownMenu.Root>
+                      {/* Use Trigger directly without the Portal wrapper */}
+                      <DropdownMenu.Trigger>
+                        <button className="p-2 hover:bg-gray-100 rounded-md text-gray-500 transition-colors outline-none cursor-pointer">
+                          <MoreVertical size={18} />
+                        </button>
+                      </DropdownMenu.Trigger>
 
-            <p className="text-sm text-gray-600 mb-4 min-h-[40px]">
-              {role.description}
-            </p>
-
-            <div className="border-t border-gray-200 pt-4">
-              <div className="text-xs font-semibold text-gray-500 uppercase mb-3 tracking-wide">
-                Permissions ({role.permissions.length})
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {role.permissions.map((permission, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-medium"
-                  >
-                    <Check size={12} className="text-teal-600" />
-                    {permission}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Add Role Modal */}
-      <Dialog.Root open={isAddRoleOpen} onOpenChange={setIsAddRoleOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-full max-w-lg p-6 z-50 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <Dialog.Title className="text-xl font-semibold text-gray-900">
-                Add New Role
-              </Dialog.Title>
-              <Dialog.Close className="p-1 hover:bg-gray-100 rounded">
-                <X size={20} className="text-gray-500" />
-              </Dialog.Close>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role Name *
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Content Writer"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description *
-                </label>
-                <textarea
-                  rows={3}
-                  placeholder="Describe the role and responsibilities..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Permissions *
-                  <span className="text-xs text-gray-500 font-normal ml-2">
-                    ({selectedPermissions.length} selected)
-                  </span>
-                </label>
-                <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto">
-                  <div className="space-y-2">
-                    {availablePermissions.map((permission) => (
-                      <label
-                        key={permission}
-                        className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={selectedPermissions.includes(permission)}
-                          onChange={() => togglePermission(permission)}
-                          className="w-4 h-4 text-teal-600 rounded focus:ring-2 focus:ring-teal-500 cursor-pointer"
-                        />
-                        <span className="text-sm text-gray-700 flex-1">
-                          {permission}
-                        </span>
-                        {selectedPermissions.includes(permission) && (
-                          <Check size={14} className="text-teal-600" />
-                        )}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    setIsAddRoleOpen(false);
-                    setSelectedPermissions([]);
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddRole}
-                  className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
-                >
-                  Add Role
-                </button>
-              </div>
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
-
-      {/* Edit Role Modal */}
-      <Dialog.Root open={isEditRoleOpen} onOpenChange={setIsEditRoleOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl w-full max-w-lg p-6 z-50 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <Dialog.Title className="text-xl font-semibold text-gray-900">
-                Edit Role
-              </Dialog.Title>
-              <Dialog.Close className="p-1 hover:bg-gray-100 rounded">
-                <X size={20} className="text-gray-500" />
-              </Dialog.Close>
-            </div>
-
-            {selectedRole && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Role Name *
-                  </label>
-                  <input
-                    type="text"
-                    defaultValue={selectedRole.name}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Description *
-                  </label>
-                  <textarea
-                    rows={3}
-                    defaultValue={selectedRole.description}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Permissions *
-                    <span className="text-xs text-gray-500 font-normal ml-2">
-                      ({selectedPermissions.length} selected)
-                    </span>
-                  </label>
-                  <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto">
-                    <div className="space-y-2">
-                      {availablePermissions.map((permission) => (
-                        <label
-                          key={permission}
-                          className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
+                      {/* The Content handles the "Portaling" automatically in Themes */}
+                      <DropdownMenu.Content align="end" size="2">
+                        {/* Edit Option */}
+                        <DropdownMenu.Item
+                          onClick={() => handleEditRole(role)}
+                          shortcut="⌘ E"
                         >
-                          <input
-                            type="checkbox"
-                            checked={selectedPermissions.includes(permission)}
-                            onChange={() => togglePermission(permission)}
-                            className="w-4 h-4 text-teal-600 rounded focus:ring-2 focus:ring-teal-500 cursor-pointer"
-                          />
-                          <span className="text-sm text-gray-700 flex-1">
-                            {permission}
-                          </span>
-                          {selectedPermissions.includes(permission) && (
-                            <Check size={14} className="text-teal-600" />
-                          )}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+                          <Edit2 size={14} className="mr-2" />
+                          Edit Role
+                        </DropdownMenu.Item>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <Users size={16} className="text-blue-600 mt-0.5" />
-                    <div className="text-xs text-blue-800">
-                      <span className="font-medium">
-                        {selectedRole.userCount} users
-                      </span>{" "}
-                      are currently assigned to this role
-                    </div>
-                  </div>
-                </div>
+                        <DropdownMenu.Separator />
 
-                <div className="flex gap-3 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => {
-                      setIsEditRoleOpen(false);
-                      setSelectedPermissions([]);
-                    }}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleUpdateRole}
-                    className="flex-1 px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700"
-                  >
-                    Update Role
-                  </button>
-                </div>
-              </div>
+                        {/* Delete Option - Using the 'red' color prop for danger */}
+                        <DropdownMenu.Item
+                          color="red"
+                          onClick={() => console.log("Delete", role.id)}
+                          shortcut="⌘ ⌫"
+                        >
+                          <Trash2 size={14} className="mr-2" />
+                          Delete Role
+                        </DropdownMenu.Item>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Root>
+                  </Table.Cell>
+                </Table.Row>
+              ))
+            ) : (
+              <Table.Row>
+                <Table.Cell
+                  py="1"
+                  colSpan={4}
+                  align="center"
+                  className="py-10 text-gray-400"
+                >
+                  {isLoading
+                    ? "Searching..."
+                    : "No roles found matching your search."}
+                </Table.Cell>
+              </Table.Row>
             )}
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          </Table.Body>
+        </Table.Root>
+      </div>
+
+      {/* --- Modals (Add/Edit) use the same logic as your previous code --- */}
+      {/* ... Add/Edit Dialogs here ... */}
     </div>
   );
 };
+
+// Mock Data
+const initialRoles = [
+  {
+    id: 1,
+    name: "Admin",
+    description: "Full system access",
+    userCount: 2,
+    permissions: ["Create", "Read", "Update", "Delete", "Manage Users"],
+  },
+  {
+    id: 2,
+    name: "Developer",
+    description: "Project work",
+    userCount: 12,
+    permissions: ["Read", "Update", "Upload Files", "Comment"],
+  },
+];
+
+const availablePermissions = [
+  "Create",
+  "Read",
+  "Update",
+  "Delete",
+  "Manage Users",
+  "Manage Roles",
+  "Upload Files",
+  "Comment",
+];
 
 export default RolesPage;

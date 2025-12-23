@@ -9,7 +9,14 @@ import {
   SlidersHorizontal,
   Edit2,
   Trash2,
+  Clock,
+  MessageSquare,
+  Paperclip,
+  CheckSquare,
 } from "lucide-react";
+import TaskComponent from "./components/home/TaskComponent";
+import KanbanComponent from "./components/home/KanbanComponent";
+import TimelineComponent from "./components/home/TimelineComponent";
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState("task");
@@ -54,54 +61,90 @@ const Home = () => {
       status: "Completed",
       statusColor: "bg-green-50 text-green-600",
       progress: 100,
+      column: "done",
+      comments: 3,
+      attachments: 5,
+      subtasks: "8/10",
     },
     {
       id: 2,
       name: "Develop UI Component Library",
       team: ["T", "P", "M"],
-      teamColors: ["bg-teal-400", "bg-pink-500"],
+      teamColors: ["bg-teal-400", "bg-pink-500", "bg-purple-400"],
       deadline: "Jun 29, 2025",
       priority: "Priority 2",
       priorityColor: "bg-orange-50 text-orange-600",
       status: "In Progress",
       statusColor: "bg-blue-50 text-blue-600",
       progress: 70,
+      column: "doing",
+      comments: 4,
+      attachments: 2,
+      subtasks: "3/5",
     },
     {
       id: 3,
       name: "Run Usability Testing",
       team: ["B", "P"],
-      teamColors: ["bg-teal-400", "bg-gray-400", "bg-purple-400"],
+      teamColors: ["bg-blue-500", "bg-pink-500"],
       deadline: "Oct 15 2025",
       priority: "Priority 3",
       priorityColor: "bg-blue-50 text-blue-600",
       status: "Completed",
       statusColor: "bg-green-50 text-green-600",
       progress: 100,
+      column: "done",
+      comments: 3,
+      attachments: 5,
+      subtasks: "5/10",
     },
     {
       id: 4,
       name: "Design Responsive Layouts",
       team: ["A", "S", "Z"],
-      teamColors: ["bg-gray-300", "bg-gray-300", "bg-orange-400"],
+      teamColors: ["bg-gray-300", "bg-green-400", "bg-orange-400"],
       deadline: "Mar 3 2025",
       priority: "Priority 1",
       priorityColor: "bg-red-50 text-red-600",
       status: "Up Coming",
       statusColor: "bg-red-50 text-red-600",
-      progress: 70,
+      progress: 0,
+      column: "todo",
+      comments: 3,
+      attachments: 5,
+      subtasks: "0/10",
     },
     {
       id: 5,
       name: "Document Design Guidelines",
       team: ["M", "H", "B"],
-      teamColors: ["bg-red-400", "bg-green-400", "bg-gray-400"],
+      teamColors: ["bg-red-400", "bg-green-400", "bg-blue-500"],
       deadline: "Jun 20, 2025",
       priority: "Priority 3",
       priorityColor: "bg-blue-50 text-blue-600",
       status: "In Progress",
       statusColor: "bg-blue-50 text-blue-600",
       progress: 20,
+      column: "doing",
+      comments: 3,
+      attachments: 5,
+      subtasks: "2/10",
+    },
+    {
+      id: 6,
+      name: "Analyze insights",
+      team: ["H"],
+      teamColors: ["bg-yellow-400"],
+      deadline: "Sep 23",
+      priority: "Priority 1",
+      priorityColor: "bg-red-50 text-red-600",
+      status: "In Progress",
+      statusColor: "bg-blue-50 text-blue-600",
+      progress: 40,
+      column: "doing",
+      comments: 3,
+      attachments: 2,
+      subtasks: "3/10",
     },
   ];
 
@@ -112,8 +155,18 @@ const Home = () => {
     { id: "archive", label: "Archive", icon: Archive },
   ];
 
+  const kanbanColumns = [
+    { id: "todo", title: "To Do", color: "border-red-400" },
+    { id: "doing", title: "Doing", color: "border-blue-400" },
+    { id: "done", title: "Done", color: "border-green-400" },
+  ];
+
+  const getTasksByColumn = (columnId) => {
+    return tasks.filter((task) => task.column === columnId);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-slate-50 min-h-screen">
       {/* Page Title */}
       <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
 
@@ -161,130 +214,26 @@ const Home = () => {
           </button>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-100">
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Task
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Team Members
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Deadline
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Priority
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Progress
-                </th>
-                <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tasks.map((task) => (
-                <tr
-                  key={task.id}
-                  className="border-b border-slate-50 hover:bg-slate-50 transition-colors"
-                >
-                  <td className="px-6 py-4">
-                    <span className="text-sm font-medium text-slate-700">
-                      {task.name}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex -space-x-2">
-                      {task.team.map((member, idx) => (
-                        <div
-                          key={idx}
-                          className={`w-8 h-8 rounded-full ${task.teamColors[idx]} flex items-center justify-center text-white text-xs font-semibold border-2 border-white`}
-                        >
-                          {member}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-sm text-slate-600">
-                      {task.deadline}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${task.priorityColor}`}
-                    >
-                      {task.priority}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${task.statusColor}`}
-                    >
-                      {task.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-teal-500 rounded-full transition-all"
-                          style={{ width: `${task.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-slate-600 min-w-[35px]">
-                        {task.progress}%
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <button className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded transition-colors">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* Kanban View */}
+        {activeTab === "kanban" && (
+          <KanbanComponent
+            kanbanColumns={kanbanColumns}
+            getTasksByColumn={getTasksByColumn}
+          />
+        )}
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100">
-          <span className="text-sm text-slate-500">Showing 1-5 from 26</span>
-          <div className="flex items-center gap-2">
-            <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded transition-colors">
-              ‹
-            </button>
-            {[1, 2, 3, 4].map((page) => (
-              <button
-                key={page}
-                className={`w-8 h-8 rounded transition-colors ${
-                  page === 1
-                    ? "bg-blue-600 text-white"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-            <span className="text-slate-400 px-2">...</span>
-            <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded transition-colors">
-              ›
-            </button>
-          </div>
-        </div>
+        {/* Task Table View */}
+        {activeTab === "task" && <TaskComponent tasks={tasks} />}
+
+        {activeTab === "archive" && (
+          <KanbanComponent
+            kanbanColumns={kanbanColumns}
+            getTasksByColumn={getTasksByColumn}
+          />
+        )}
+
+        {/* Timeline & Archive Views */}
+        {activeTab === "timeline" && <TimelineComponent tasks={tasks} />}
       </div>
     </div>
   );

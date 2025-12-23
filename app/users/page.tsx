@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import * as Switch from "@radix-ui/react-switch";
 import {
   Table,
   Flex,
@@ -12,30 +9,28 @@ import {
   Avatar,
   Button,
   Box,
+  DropdownMenu,
+  IconButton,
 } from "@radix-ui/themes";
 import {
-  Search,
-  Filter,
-  Edit2,
-  Trash2,
-  Plus,
-  X,
   Mail,
   Phone,
   MoreVertical,
-  Upload,
-  User as UserIcon,
+  Edit2,
+  Trash2,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { PageHeader } from "../components/dynamic/PageHeader";
+import { useRouter } from "next/navigation";
 
 const UsersPage = () => {
-  // --- STATE ---
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const router = useRouter();
 
+  // Mock Data (unchanged)
   const [users] = useState([
     {
       id: 1,
@@ -97,20 +92,8 @@ const UsersPage = () => {
       avatar: "AS",
       color: "pink",
     },
-    {
-      id: 7,
-      name: "Robert Fox",
-      email: "robert.f@company.com",
-      phone: "+1 234 567 8906",
-      role: "Viewer",
-      status: "Inactive",
-      avatar: "RF",
-      color: "gray",
-    },
-    // Add more objects as needed...
   ]);
 
-  // --- LOGIC ---
   const filteredUsers = useMemo(() => {
     return users.filter(
       (u) =>
@@ -127,7 +110,7 @@ const UsersPage = () => {
   );
 
   return (
-    <Box p="3" className="bg-white min-h-screen">
+    <Box p="3">
       <PageHeader
         title="Users"
         searchPlaceholder="Search users..."
@@ -136,29 +119,20 @@ const UsersPage = () => {
           setSearchQuery(val);
           setCurrentPage(1);
         }}
-        onAddClick={() => {}}
+        onAddClick={() => router.push("/users/form")}
         addButtonLabel="Add User"
       />
-      <div className="max-w-7xl mx-auto">
-        {/* Borderless Header Section */}
 
-        {/* RADIX UI TABLE - Borderless (Ghost Variant) */}
-        <Table.Root variant="ghost" className="mt-4">
+      {/* Main Table Container */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Table.Root variant="ghost">
           <Table.Header>
-            <Table.Row className="border-b border-gray-100">
-              <Table.ColumnHeaderCell className="pb-4">
-                User
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="pb-4">
-                Contact
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="pb-4">
-                Role
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="pb-4">
-                Status
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell className="pb-4 text-right">
+            <Table.Row className="border-b border-gray-50/60">
+              <Table.ColumnHeaderCell>User</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Contact</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Role</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell>Status</Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell align="right">
                 Actions
               </Table.ColumnHeaderCell>
             </Table.Row>
@@ -169,10 +143,9 @@ const UsersPage = () => {
               <Table.Row
                 key={user.id}
                 align="center"
-                className="hover:bg-gray-50/50 border-b border-gray-50 last:border-none transition-colors"
+                className="hover:bg-gray-50/50 transition-colors"
               >
-                {/* User Info */}
-                <Table.RowHeaderCell className="py-4">
+                <Table.RowHeaderCell>
                   <Flex gap="3" align="center">
                     <Avatar
                       size="3"
@@ -191,8 +164,7 @@ const UsersPage = () => {
                   </Flex>
                 </Table.RowHeaderCell>
 
-                {/* Contact */}
-                <Table.Cell className="py-4">
+                <Table.Cell py="1">
                   <Flex direction="column" gap="1">
                     <Text
                       size="1"
@@ -209,15 +181,13 @@ const UsersPage = () => {
                   </Flex>
                 </Table.Cell>
 
-                {/* Role */}
-                <Table.Cell className="py-4">
+                <Table.Cell py="1">
                   <Badge variant="soft" color="blue" radius="large">
                     {user.role}
                   </Badge>
                 </Table.Cell>
 
-                {/* Status */}
-                <Table.Cell className="py-4">
+                <Table.Cell py="1">
                   <Badge
                     variant="surface"
                     color={user.status === "Active" ? "green" : "gray"}
@@ -227,29 +197,31 @@ const UsersPage = () => {
                   </Badge>
                 </Table.Cell>
 
-                {/* Actions */}
-                <Table.Cell className="py-4 text-right">
+                <Table.Cell py="1" align="right">
                   <DropdownMenu.Root>
-                    <DropdownMenu.Trigger asChild>
-                      <button className="p-2 hover:bg-gray-100 rounded-md text-gray-400 transition-colors outline-none">
-                        <MoreVertical size={18} />
-                      </button>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Portal>
-                      <DropdownMenu.Content
-                        align="end"
-                        sideOffset={5}
-                        className="min-w-[150px] bg-white border border-gray-100 rounded-lg shadow-xl p-1 z-50"
+                    <DropdownMenu.Trigger>
+                      <IconButton
+                        variant="ghost"
+                        color="gray"
+                        className="cursor-pointer"
                       >
-                        <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded cursor-pointer outline-none">
-                          <Edit2 size={14} /> Edit User
-                        </DropdownMenu.Item>
-                        <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
-                        <DropdownMenu.Item className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded cursor-pointer outline-none">
-                          <Trash2 size={14} /> Delete
-                        </DropdownMenu.Item>
-                      </DropdownMenu.Content>
-                    </DropdownMenu.Portal>
+                        <MoreVertical size={18} />
+                      </IconButton>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content align="end" size="2">
+                      <DropdownMenu.Item
+                        onClick={() => router.push(`/users/form/${user.id}`)}
+                      >
+                        <Edit2 size={14} className="mr-2" /> Edit User
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator />
+                      <DropdownMenu.Item
+                        color="red"
+                        onClick={() => console.log("Delete", user.id)}
+                      >
+                        <Trash2 size={14} className="mr-2" /> Delete
+                      </DropdownMenu.Item>
+                    </DropdownMenu.Content>
                   </DropdownMenu.Root>
                 </Table.Cell>
               </Table.Row>
@@ -257,14 +229,19 @@ const UsersPage = () => {
           </Table.Body>
         </Table.Root>
 
-        {/* BORDERLESS PAGINATION SECTION */}
-        <Flex align="center" justify="between" className="pt-8 pb-4">
+        {/* Pagination Section - Integrated into the card */}
+        <Flex
+          align="center"
+          justify="between"
+          p="4"
+          className="border-t border-gray-50"
+        >
           <Text size="1" color="gray">
             Showing <strong>{paginatedUsers.length}</strong> of{" "}
             <strong>{filteredUsers.length}</strong> results
           </Text>
 
-          <Flex gap="3" align="center">
+          <Flex gap="2" align="center">
             <Button
               variant="ghost"
               color="gray"
@@ -275,19 +252,17 @@ const UsersPage = () => {
               <ChevronLeft size={16} /> Previous
             </Button>
 
-            <Flex gap="1">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <Button
-                  key={i}
-                  variant={currentPage === i + 1 ? "soft" : "ghost"}
-                  color={currentPage === i + 1 ? "teal" : "gray"}
-                  onClick={() => setCurrentPage(i + 1)}
-                  className="cursor-pointer"
-                >
-                  {i + 1}
-                </Button>
-              ))}
-            </Flex>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Button
+                key={i}
+                variant={currentPage === i + 1 ? "solid" : "ghost"}
+                color={currentPage === i + 1 ? "teal" : "gray"}
+                onClick={() => setCurrentPage(i + 1)}
+                className="cursor-pointer px-3"
+              >
+                {i + 1}
+              </Button>
+            ))}
 
             <Button
               variant="ghost"
