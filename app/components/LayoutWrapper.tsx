@@ -46,7 +46,7 @@ export default function LayoutWrapper({
           <Navbar onToggleSidebar={toggleSidebar} />
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-5 ">{children}</main>
       </div>
     </div>
   );

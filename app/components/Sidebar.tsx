@@ -48,6 +48,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, isCollapsed, onClose }) => {
     },
     { icon: BarChart3, label: "Timeline", href: "/timeline", badge: true },
     { icon: Users, label: "Team", href: "/team" },
+    { icon: Users, label: "Users", href: "/users" },
+    { icon: Users, label: "Roles", href: "/roles" },
   ];
 
   const accountPages = [
